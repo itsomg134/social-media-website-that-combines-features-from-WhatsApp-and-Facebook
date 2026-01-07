@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Connect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Left Sidebar - Chats */
+        .sidebar {
+            width: 350px;
+            background: white;
+            border-right: 1px solid #e4e6eb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .chat-item:hover {
+            background: #f0f2f5;
+        }
+
+        .chat-item.active {
+            background: #e7f3ff;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .chat-preview {
+            color: #65676b;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: #65676b;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .content-header {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            color: #65676b;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 8px 20px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Messages View */
+        .messages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 70%;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.received .message-bubble {
+            background: #f0f2f5;
+            color: #000;
+        }
+
+        .message.sent .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #65676b;
+            margin-top: 3px;
+        }
+
+        /* Posts View */
+        .posts-container {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .create-post {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .create-post-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .create-post-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #e4e6eb;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .post-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .post {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .post-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .post-author {
+            flex: 1;
+        }
+
+        .post-author-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #65676b;
+        }
+
+        .post-content {
+            padding: 0 15px 15px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .post-actions {
+            padding: 10px 15px;
+            border-top: 1px solid #e4e6eb;
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #65676b;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: #667eea;
+        }
+
+        /* Message Input */
+        .message-input {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e4e6eb;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #e4e6eb;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Stories */
+        .stories {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            overflow-x: auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .story {
+            flex-shrink: 0;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .story-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #667eea;
+        }
+
+        .story-name {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #65676b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Social Connect</h2>
+                <div class="search-box">
+                    <input type="text" placeholder="Search messages...">
+                </div>
+            </div>
+            <div class="chat-list" id="chatList">
+                <div class="chat-item active" onclick="selectChat('Sarah Johnson')">
+                    <div class="avatar">SJ</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Sarah Johnson</div>
+                        <div class="chat-preview">That sounds great! See you then 😊</div>
+                    </div>
+                    <div class="chat-time">2m</div>
+                </div>
+                <div class="chat-item" onclick="selectChat('Mike Chen')">
+                    <div class="avatar">MC</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Mike Chen</div>
+                        <div class="chat-preview">Did you finish the project?</div>
+                    </div>
+                    <div class="chat-time">15m</div>
+                </div>
+                <div class="chat-item" onclick="selectChat('Emma Davis')">
+                    <div class="avatar">ED</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Emma Davis</div>
+                        <div class="chat-preview">Thanks for the help!</div>
+                    </div>
+                    <div class="chat-time">1h</div>
+                </div>
+                <div class="chat-item" onclick="selectChat('Alex Brown')">
+                    <div class="avatar">AB</div>
+                    <div class="chat-info">
+                        <div class="chat-name">Alex Brown</div>
+                        <div class="chat-preview">Let's catch up soon</div>
+                    </div>
+                    <div class="chat-time">3h</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="header-left">
+                    <div class="avatar" style="width: 40px; height: 40px; margin-right: 10px;">SJ</div>
+                    <div>
+                        <div class="header-title" id="chatTitle">Sarah Johnson</div>
+                        <div class="header-subtitle">Active now</div>
+                    </div>
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchView('messages')">Messages</button>
+                    <button class="tab" onclick="switchView('feed')">Feed</button>
+                </div>
+            </div>
+
+            <!-- Messages View -->
+            <div class="content-area" id="messagesView">
+                <div class="messages-container">
+                    <div class="message received">
+                        <div class="avatar" style="width: 35px; height: 35px; font-size: 14px;">SJ</div>
+                        <div>
+                            <div class="message-bubble">Hey! How are you doing?</div>
+                            <div class="message-time">10:30 AM</div>
+                        </div>
+                    </div>
+                    <div class="message sent">
+                        <div>
+                            <div class="message-bubble">Hi Sarah! I'm doing great, thanks for asking!</div>
+                            <div class="message-time" style="text-align: right;">10:32 AM</div>
+                        </div>
+                    </div>
+                    <div class="message received">
+                        <div class="avatar" style="width: 35px; height: 35px; font-size: 14px;">SJ</div>
+                        <div>
+                            <div class="message-bubble">Want to grab coffee tomorrow?</div>
+                            <div class="message-time">10:35 AM</div>
+                        </div>
+                    </div>
+                    <div class="message sent">
+                        <div>
+                            <div class="message-bubble">That sounds great! See you then 😊</div>
+                            <div class="message-time" style="text-align: right;">10:37 AM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feed View -->
+            <div class="content-area hidden" id="feedView">
+                <div class="posts-container">
+                    <div class="stories">
+                        <div class="story">
+                            <div class="story-avatar">+</div>
+                            <div class="story-name">Your Story</div>
+                        </div>
+                        <div class="story">
+                            <div class="story-avatar">SJ</div>
+                            <div class="story-name">Sarah</div>
+                        </div>
+                        <div class="story">
+                            <div class="story-avatar">MC</div>
+                            <div class="story-name">Mike</div>
+                        </div>
+                        <div class="story">
+                            <div class="story-avatar">ED</div>
+                            <div class="story-name">Emma</div>
+                        </div>
+                    </div>
+
+                    <div class="create-post">
+                        <div class="create-post-input">
+                            <div class="avatar" style="width: 40px; height: 40px;">You</div>
+                            <input type="text" placeholder="What's on your mind?" id="postInput">
+                            <button class="post-btn" onclick="createPost()">Post</button>
+                        </div>
+                    </div>
+
+                    <div id="postsContainer">
+                        <div class="post">
+                            <div class="post-header">
+                                <div class="avatar" style="width: 40px; height: 40px; margin-right: 10px;">SJ</div>
+                                <div class="post-author">
+                                    <div class="post-author-name">Sarah Johnson</div>
+                                    <div class="post-time">2 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                Just finished an amazing hike! The view from the top was absolutely breathtaking. Nature really has a way of putting things in perspective. 🏔️
+                            </div>
+                            <div class="post-actions">
+                                <button class="action-btn">👍 Like</button>
+                                <button class="action-btn">💬 Comment</button>
+                                <button class="action-btn">↗️ Share</button>
+                            </div>
+                        </div>
+
+                        <div class="post">
+                            <div class="post-header">
+                                <div class="avatar" style="width: 40px; height: 40px; margin-right: 10px;">MC</div>
+                                <div class="post-author">
+                                    <div class="post-author-name">Mike Chen</div>
+                                    <div class="post-time">5 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                Excited to announce that I just launched my new project! It's been months of hard work, but seeing it come to life is incredibly rewarding. Check it out! 🚀
+                            </div>
+                            <div class="post-actions">
+                                <button class="action-btn">👍 Like</button>
+                                <button class="action-btn">💬 Comment</button>
+                                <button class="action-btn">↗️ Share</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-input" id="messageInput">
+                <input type="text" placeholder="Type a message..." id="msgText">
+                <button class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentView = 'messages';
+
+        function switchView(view) {
+            const tabs = document.querySelectorAll('.tab');
+            const messagesView = document.getElementById('messagesView');
+            const feedView = document.getElementById('feedView');
+            const messageInput = document.getElementById('messageInput');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (view === 'messages') {
+                messagesView.classList.remove('hidden');
+                feedView.classList.add('hidden');
+                messageInput.style.display = 'flex';
+                currentView = 'messages';
+            } else {
+                messagesView.classList.add('hidden');
+                feedView.classList.remove('hidden');
+                messageInput.style.display = 'none';
+                currentView = 'feed';
+            }
+        }
+
+        function selectChat(name) {
+            const items = document.querySelectorAll('.chat-item');
+            items.forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById('chatTitle').textContent = name;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('msgText');
+            const text = input.value.trim();
+            
+            if (text) {
+                const container = document.querySelector('.messages-container');
+                const now = new Date();
+                const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                
+                const msg = document.createElement('div');
+                msg.className = 'message sent';
+                msg.innerHTML = `
+                    <div>
+                        <div class="message-bubble">${text}</div>
+                        <div class="message-time" style="text-align: right;">${time}</div>
+                    </div>
+                `;
+                
+                container.appendChild(msg);
+                input.value = '';
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        function createPost() {
+            const input = document.getElementById('postInput');
+            const text = input.value.trim();
+            
+            if (text) {
+                const container = document.getElementById('postsContainer');
+                
+                const post = document.createElement('div');
+                post.className = 'post';
+                post.innerHTML = `
+                    <div class="post-header">
+                        <div class="avatar" style="width: 40px; height: 40px; margin-right: 10px;">You</div>
+                        <div class="post-author">
+                            <div class="post-author-name">You</div>
+                            <div class="post-time">Just now</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${text}</div>
+                    <div class="post-actions">
+                        <button class="action-btn">👍 Like</button>
+                        <button class="action-btn">💬 Comment</button>
+                        <button class="action-btn">↗️ Share</button>
+                    </div>
+                `;
+                
+                container.insertBefore(post, container.firstChild);
+                input.value = '';
+            }
+        }
+
+        document.getElementById('msgText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        document.getElementById('postInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                createPost();
+            }
+        });
+    </script>
+</body>
+</html>
